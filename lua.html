@@ -1,0 +1,701 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Customizing Sipi with Lua Scripts &#8212; Sipi 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Sipi 0.1 documentation" href="index.html" />
+    <link rel="next" title="Developing Sipi" href="developing.html" />
+    <link rel="prev" title="Running Sipi" href="running.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Sipi 0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="running.html" title="Running Sipi"
+             accesskey="P">previous</a> |
+          <a href="developing.html" title="Developing Sipi"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="customizing-sipi-with-lua-scripts">
+<span id="lua"></span><h1>Customizing Sipi with Lua Scripts<a class="headerlink" href="#customizing-sipi-with-lua-scripts" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#custom-routes" id="id1">Custom Routes</a></li>
+<li><a class="reference internal" href="#authentication-and-authorization" id="id2">Authentication and Authorization</a></li>
+<li><a class="reference internal" href="#sipi-functions-available-to-lua-scripts" id="id3">Sipi Functions Available to Lua Scripts</a><ul>
+<li><a class="reference internal" href="#server-setbuffer" id="id4">server.setBuffer</a></li>
+<li><a class="reference internal" href="#server-fs-ftype" id="id5">server.fs.ftype</a></li>
+<li><a class="reference internal" href="#server-fs-is-readable" id="id6">server.fs.is_readable</a></li>
+<li><a class="reference internal" href="#server-fs-is-writeable" id="id7">server.fs.is_writeable</a></li>
+<li><a class="reference internal" href="#server-fs-is-executable" id="id8">server.fs.is_executable</a></li>
+<li><a class="reference internal" href="#server-fs-exists" id="id9">server.fs.exists</a></li>
+<li><a class="reference internal" href="#server-fs-unlink" id="id10">server.fs.unlink</a></li>
+<li><a class="reference internal" href="#server-fs-mkdir" id="id11">server.fs.mkdir</a></li>
+<li><a class="reference internal" href="#server-fs-rmdir" id="id12">server.fs.rmdir</a></li>
+<li><a class="reference internal" href="#server-fs-getcwd" id="id13">server.fs.getcwd</a></li>
+<li><a class="reference internal" href="#server-fs-chdir" id="id14">server.fs.chdir</a></li>
+<li><a class="reference internal" href="#server-uuid" id="id15">server.uuid</a></li>
+<li><a class="reference internal" href="#server-uuid62" id="id16">server.uuid62</a></li>
+<li><a class="reference internal" href="#server-uuid-to-base62" id="id17">server.uuid_to_base62</a></li>
+<li><a class="reference internal" href="#server-base62-to-uuid" id="id18">server.base62_to_uuid</a></li>
+<li><a class="reference internal" href="#server-print" id="id19">server.print</a></li>
+<li><a class="reference internal" href="#server-http" id="id20">server.http</a></li>
+<li><a class="reference internal" href="#server-table-to-json" id="id21">server.table_to_json</a></li>
+<li><a class="reference internal" href="#server-json-to-table" id="id22">server.json_to_table</a></li>
+<li><a class="reference internal" href="#server-sendheader" id="id23">server.sendHeader</a></li>
+<li><a class="reference internal" href="#server-sendcookie" id="id24">server.sendCookie</a></li>
+<li><a class="reference internal" href="#server-sendstatus" id="id25">server.sendStatus</a></li>
+<li><a class="reference internal" href="#server-generate-jwt" id="id26">server.generate_jwt</a></li>
+<li><a class="reference internal" href="#server-decode-jwt" id="id27">server.decode_jwt</a></li>
+<li><a class="reference internal" href="#server-requireauth" id="id28">server.requireAuth</a></li>
+<li><a class="reference internal" href="#server-copytmpfile" id="id29">server.copyTmpfile</a></li>
+<li><a class="reference internal" href="#server-log" id="id30">server.log</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sipi-variables-available-to-lua-scripts" id="id31">Sipi Variables Available to Lua Scripts</a></li>
+<li><a class="reference internal" href="#installing-lua-modules" id="id32">Installing Lua modules</a></li>
+<li><a class="reference internal" href="#using-sqlite-in-lua-scripts" id="id33">Using SQLite in Lua Scripts</a><ul>
+<li><a class="reference internal" href="#opening-an-sqlite-database" id="id34">Opening an SQLite Database</a></li>
+<li><a class="reference internal" href="#preparing-a-query" id="id35">Preparing a Query</a></li>
+<li><a class="reference internal" href="#executing-a-query" id="id36">Executing a Query</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>Within Sipi, Lua is used to perform authentication and authorization
+for IIIF image requests, and to write custom routes.</p>
+<p>Sipi provides the Lua interpreter the <a class="reference external" href="https://luarocks.org/">LuaRocks</a> package manager. Sipi does not
+use the system&#8217;s Lua interpreter or package manager.</p>
+<p>The Lua interepreter in Sipi runs in a multithreaded environment: each
+connection runs in its own thread and has its own Lua interpreter. Therefore,
+only Lua packages that are known to be thread-safe may be used.</p>
+<div class="section" id="custom-routes">
+<h2><a class="toc-backref" href="#id1">Custom Routes</a><a class="headerlink" href="#custom-routes" title="Permalink to this headline">¶</a></h2>
+<p>Custom routes can be defined in Sipi&#8217;s configuration file using the
+<code class="docutils literal"><span class="pre">routes</span></code> configuration variable. For example:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">routes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">{</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">GET&#39;</span><span class="p">,</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">/status&#39;</span><span class="p">,</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">get_repository_status.lua&#39;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">POST&#39;</span><span class="p">,</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">/make_thumbnail&#39;</span><span class="p">,</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">make_image_thumbnail.lua&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Sipi looks for these scripts in the directory specified by <code class="docutils literal"><span class="pre">scriptdir</span></code> in
+its configuration file. The first route that matches the beginning of the
+requested URL path will be used.</p>
+</div>
+<div class="section" id="authentication-and-authorization">
+<h2><a class="toc-backref" href="#id2">Authentication and Authorization</a><a class="headerlink" href="#authentication-and-authorization" title="Permalink to this headline">¶</a></h2>
+<p>In Sipi&#8217;s config file, <code class="docutils literal"><span class="pre">initscript</span></code> contains the path of a Lua script that
+defines a function called <code class="docutils literal"><span class="pre">pre_flight</span></code>. The function takes the
+parameters <code class="docutils literal"><span class="pre">prefix</span></code>, <code class="docutils literal"><span class="pre">identifier</span></code> and, <code class="docutils literal"><span class="pre">cookie</span></code>, and is called
+whenever an image is requested.</p>
+<p>The possible return values of the <code class="docutils literal"><span class="pre">pre_flight</span></code> function are as follows.
+Note that Lua function&#8217;s return value may consist of more than one element
+(see <a class="reference external" href="http://www.lua.org/pil/5.1.html">Multiple Results</a>):</p>
+<ul>
+<li><p class="first">Grant full permissions to access the file identified by <code class="docutils literal"><span class="pre">filepath</span></code>: <code class="docutils literal"><span class="pre">return</span> <span class="pre">'allow',</span> <span class="pre">filepath</span></code></p>
+</li>
+<li><dl class="first docutils">
+<dt>Grant restricted access to the file identified by <code class="docutils literal"><span class="pre">filepath</span></code>, in one of the following ways:</dt>
+<dd><ul class="first last simple">
+<li>Reduce the image dimensions, e.g. to the default thumbnail dimensions: <code class="docutils literal"><span class="pre">return</span> <span class="pre">'restrict:size='</span> <span class="pre">..</span> <span class="pre">&quot;config.thumb_size&quot;,</span> <span class="pre">filepath</span></code></li>
+<li>Render the image with a watermark: <code class="docutils literal"><span class="pre">return</span> <span class="pre">restrict:watermark=&lt;path-to-watermark&gt;,</span> <span class="pre">filepath</span></code></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Deny access to the requested file: <code class="docutils literal"><span class="pre">return</span> <span class="pre">'deny'</span></code></p>
+</li>
+</ul>
+<p>In the <code class="docutils literal"><span class="pre">pre_flight</span></code> function, permission checking can be implemented.
+When Sipi is used with <a class="reference external" href="http://www.knora.org/">Knora</a>, the <code class="docutils literal"><span class="pre">pre_flight</span></code> function asks
+Knora about the user&#8217;s permissions on the image
+(see <code class="docutils literal"><span class="pre">sipi.init-knora.lua</span></code>). The scripts <code class="docutils literal"><span class="pre">Knora_login.lua</span></code> and
+<code class="docutils literal"><span class="pre">Knora_logout.lua</span></code> handle the setting and unsetting of a cookie
+containing the Knora session ID.</p>
+</div>
+<div class="section" id="sipi-functions-available-to-lua-scripts">
+<h2><a class="toc-backref" href="#id3">Sipi Functions Available to Lua Scripts</a><a class="headerlink" href="#sipi-functions-available-to-lua-scripts" title="Permalink to this headline">¶</a></h2>
+<p>Sipi provides the following functions that can be called from Lua scripts.
+Each function returns two values. The first value is <code class="docutils literal"><span class="pre">true</span></code> if the operation
+succeeded, <code class="docutils literal"><span class="pre">false</span></code> otherwise. If the operation suceeded, the second value
+is the result of the operation, otherwise it is an error message.</p>
+<div class="section" id="server-setbuffer">
+<h3><a class="toc-backref" href="#id4">server.setBuffer</a><a class="headerlink" href="#server-setbuffer" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errmsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">setBuffer</span><span class="p">([</span><span class="n">bufsize</span><span class="p">][,</span><span class="n">incsize</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Activates the the connection buffer. Optionally the buffer size and increment
+size can be given. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-ftype">
+<h3><a class="toc-backref" href="#id5">server.fs.ftype</a><a class="headerlink" href="#server-fs-ftype" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">filetype</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">ftype</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">path&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Checks the filetype of a given filepath. Returns either <code class="docutils literal"><span class="pre">true,</span> <span class="pre">filetype</span></code>
+(one of <code class="docutils literal"><span class="pre">&quot;FILE&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;DIRECTORY&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;CHARDEV&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;BLOCKDEV&quot;</span></code>,
+<code class="docutils literal"><span class="pre">&quot;LINK&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;SOCKET&quot;</span></code> or <code class="docutils literal"><span class="pre">&quot;UNKNOWN&quot;</span></code>) or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code>.</p>
+</div>
+<div class="section" id="server-fs-is-readable">
+<h3><a class="toc-backref" href="#id6">server.fs.is_readable</a><a class="headerlink" href="#server-fs-is-readable" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">readable</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">is_readable</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Checks if a file is readable. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">readable</span></code> (boolean) on success
+or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-is-writeable">
+<h3><a class="toc-backref" href="#id7">server.fs.is_writeable</a><a class="headerlink" href="#server-fs-is-writeable" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">writeable</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">is_writeable</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Checks if a file is writeable. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">writeable</span></code> (boolean) on
+success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-is-executable">
+<h3><a class="toc-backref" href="#id8">server.fs.is_executable</a><a class="headerlink" href="#server-fs-is-executable" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">is_executable</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Checks if a file is executable. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">executable</span></code> (boolean) on
+success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-exists">
+<h3><a class="toc-backref" href="#id9">server.fs.exists</a><a class="headerlink" href="#server-fs-exists" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">exists</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Checks if a file exists. Checks if a file exists. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">exists</span></code>
+(boolean) on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-unlink">
+<h3><a class="toc-backref" href="#id10">server.fs.unlink</a><a class="headerlink" href="#server-fs-unlink" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Deletes a file from the file system. The file must exist and the user must
+have write access. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on
+failure.</p>
+</div>
+<div class="section" id="server-fs-mkdir">
+<h3><a class="toc-backref" href="#id11">server.fs.mkdir</a><a class="headerlink" href="#server-fs-mkdir" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="p">[</span><span class="nb">tonumber</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">0755&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>Creates a new directory, optionally with the specified permissions. Returns
+<code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-rmdir">
+<h3><a class="toc-backref" href="#id12">server.fs.rmdir</a><a class="headerlink" href="#server-fs-rmdir" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Deletes a directory. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code>
+on failure.</p>
+</div>
+<div class="section" id="server-fs-getcwd">
+<h3><a class="toc-backref" href="#id13">server.fs.getcwd</a><a class="headerlink" href="#server-fs-getcwd" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">curdir</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">getcwd</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Gets the current working directory. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">current_dir</span></code> on success
+or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-fs-chdir">
+<h3><a class="toc-backref" href="#id14">server.fs.chdir</a><a class="headerlink" href="#server-fs-chdir" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">oldir</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">fs</span><span class="p">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">newdir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Change working directory. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">olddir</span></code> on success or <code class="docutils literal"><span class="pre">false,</span>
+<span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-uuid">
+<h3><a class="toc-backref" href="#id15">server.uuid</a><a class="headerlink" href="#server-uuid" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">uuid</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">uuid</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Generates a random UUID version 4 identifier in canonical form, as described
+in <a class="reference external" href="https://tools.ietf.org/html/rfc4122">RFC 4122</a>. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">uuid</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on
+failure.</p>
+</div>
+<div class="section" id="server-uuid62">
+<h3><a class="toc-backref" href="#id16">server.uuid62</a><a class="headerlink" href="#server-uuid62" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">uuid62</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">uuid62</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Generates a Base62-encoded UUID. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">uuid62</span></code> on success or
+<code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-uuid-to-base62">
+<h3><a class="toc-backref" href="#id17">server.uuid_to_base62</a><a class="headerlink" href="#server-uuid-to-base62" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">uuid62</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">uuid_to_base62</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Converts a canonical UUID string to a Base62-encoded UUID. Returns
+<code class="docutils literal"><span class="pre">true,</span> <span class="pre">uuid62</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-base62-to-uuid">
+<h3><a class="toc-backref" href="#id18">server.base62_to_uuid</a><a class="headerlink" href="#server-base62-to-uuid" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">uuid</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">base62_to_uuid</span><span class="p">(</span><span class="n">uuid62</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Converts a Base62-encoded UUID to canonical form. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">uuid</span></code> on
+success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-print">
+<h3><a class="toc-backref" href="#id19">server.print</a><a class="headerlink" href="#server-print" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Prints variables and/or strings to the HTTP connection. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-http">
+<h3><a class="toc-backref" href="#id20">server.http</a><a class="headerlink" href="#server-http" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">http</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s">http://server.domain[:port]/path/file&quot;</span> <span class="p">[,</span> <span class="n">header</span><span class="p">]</span> <span class="p">[,</span> <span class="n">timeout</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Performs an HTTP request. Parameters:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">method</span></code>: The HTTP request method. Currently must be <code class="docutils literal"><span class="pre">&quot;GET&quot;</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">url</span></code>: The HTTP URL.</li>
+<li><code class="docutils literal"><span class="pre">header</span></code>: An optional table of key-value pairs representing HTTP request headers.</li>
+<li><code class="docutils literal"><span class="pre">timeout</span></code>: An optional number of milliseconds until the connection times out.</li>
+</ul>
+<p>Authentication is not yet supported.</p>
+<p>The result is a table:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">status_code</span> <span class="o">=</span> <span class="n">value</span> <span class="c1">-- HTTP status code returned</span>
+    <span class="n">erromsg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">error description&quot;</span> <span class="c1">-- only if success is false</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">value</span> <span class="p">[,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">value</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="n">certificate</span> <span class="o">=</span> <span class="p">{</span> <span class="c1">-- only if HTTPS connection</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="n">value</span><span class="p">,</span>
+        <span class="n">issuer</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="p">},</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">milliseconds</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">http</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">GET&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s">http://www.salsah.org/api/resources/1&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">success</span><span class="p">)</span> <span class="k">then</span>
+   <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">&lt;table&gt;&quot;</span><span class="p">)</span>
+   <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">&lt;tr&gt;&lt;th&gt;Field&lt;/th&gt;&lt;th&gt;Value&lt;/th&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
+   <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="k">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">header</span><span class="p">)</span> <span class="k">do</span>
+       <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">&lt;tr&gt;&lt;td&gt;&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s">&lt;/td&gt;&lt;td&gt;&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s">&lt;/td&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
+   <span class="k">end</span>
+   <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">&lt;/table&gt;&lt;hr/&gt;&quot;</span><span class="p">)</span>
+
+   <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Duration: &quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">duration</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s"> ms&lt;br/&gt;&lt;hr/&gt;&quot;</span><span class="p">)</span>
+   <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Body:&lt;br/&gt;&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">body</span><span class="p">)</span>
+<span class="k">else</span>
+   <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">ERROR: &quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">errmsg</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="server-table-to-json">
+<h3><a class="toc-backref" href="#id21">server.table_to_json</a><a class="headerlink" href="#server-table-to-json" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>::</dt>
+<dd>success, jsonstr = server.table_to_json(table)</dd>
+</dl>
+<p>Converts a (nested) Lua table to a JSON string. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">jsonstr</span></code> on
+success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-json-to-table">
+<h3><a class="toc-backref" href="#id22">server.json_to_table</a><a class="headerlink" href="#server-json-to-table" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">table</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">json_to_table</span><span class="p">(</span><span class="n">jsonstr</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Converts a JSON string to a (nested) Lua table. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">table</span></code> on
+success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-sendheader">
+<h3><a class="toc-backref" href="#id23">server.sendHeader</a><a class="headerlink" href="#server-sendheader" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">sendHeader</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sets an HTTP response header. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-sendcookie">
+<h3><a class="toc-backref" href="#id24">server.sendCookie</a><a class="headerlink" href="#server-sendcookie" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">sendCookie</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="p">[,</span> <span class="n">options</span><span class="o">-</span><span class="n">table</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Sets a cookie in the HTTP response. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.
+The optional <code class="docutils literal"><span class="pre">options-table</span></code> is a Lua table containing the following keys:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">path</span></code></li>
+<li><code class="docutils literal"><span class="pre">domain</span></code></li>
+<li><code class="docutils literal"><span class="pre">expires</span></code> (value in seconds)</li>
+<li><code class="docutils literal"><span class="pre">secure</span></code> (boolean)</li>
+<li><code class="docutils literal"><span class="pre">http_only</span></code> (boolean)</li>
+</ul>
+</div>
+<div class="section" id="server-sendstatus">
+<h3><a class="toc-backref" href="#id25">server.sendStatus</a><a class="headerlink" href="#server-sendstatus" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Sends an HTTP status code. This function is always successful and returns nothing.</p>
+</div>
+<div class="section" id="server-generate-jwt">
+<h3><a class="toc-backref" href="#id26">server.generate_jwt</a><a class="headerlink" href="#server-generate-jwt" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">generate_jwt</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generates a <a class="reference external" href="https://jwt.io/">JSON Web Token</a> (JWT) with the table as payload. Returns <code class="docutils literal"><span class="pre">true,</span>
+<span class="pre">token</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure. The table contains the
+JWT claims as follows. (The type <code class="docutils literal"><span class="pre">IntDate</span></code> is a number of seconds since
+1970-01-01T0:0:0Z):</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">iss</span></code> (string =&gt; StringOrURI) OPT: principal that issued the JWT.</li>
+<li><code class="docutils literal"><span class="pre">exp</span></code> (number =&gt; IntDate) OPT: expiration time on or after which the token MUST NOT be accepted for processing.</li>
+<li><code class="docutils literal"><span class="pre">nbf</span></code>  (number =&gt; IntDate) OPT: identifies the time before which the token MUST NOT be accepted for processing.</li>
+<li><code class="docutils literal"><span class="pre">iat</span></code> (number =&gt; IntDate) OPT: identifies the time at which the JWT was issued.</li>
+<li><code class="docutils literal"><span class="pre">aud</span></code> (string =&gt; StringOrURI) OPT: identifies the audience that the JWT is intended for.
+The audience value is a string, typically the base address of the resource being accessed, such as <code class="docutils literal"><span class="pre">https://contoso.com</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">prn</span></code> (string =&gt; StringOrURI) OPT: identifies the subject of the JWT.</li>
+<li><code class="docutils literal"><span class="pre">jti</span></code> (string =&gt; String) OPT: provides a unique identifier for the JWT.</li>
+</ul>
+</div>
+<div class="section" id="server-decode-jwt">
+<h3><a class="toc-backref" href="#id27">server.decode_jwt</a><a class="headerlink" href="#server-decode-jwt" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">table</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">decode_jwt</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Decodes a <a class="reference external" href="https://jwt.io/">JSON Web Token</a> (JWT) and returns its content as table. Returns
+<code class="docutils literal"><span class="pre">true,</span> <span class="pre">table</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure.</p>
+</div>
+<div class="section" id="server-requireauth">
+<h3><a class="toc-backref" href="#id28">server.requireAuth</a><a class="headerlink" href="#server-requireauth" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">table</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">requireAuth</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Gets HTTP authentification data. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">table</span></code> on success or
+<code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on failure. The result is a table:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">string</span> <span class="c1">-- &quot;BASIC&quot; | &quot;BEARER&quot; | &quot;NOAUTH&quot; (no authorization header) | &quot;ERROR&quot;</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">string</span> <span class="c1">-- only if status = &quot;BASIC&quot;</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">string</span> <span class="c1">-- only if status = &quot;BASIC&quot;</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">string</span> <span class="c1">-- only if status = &quot;BEARER&quot;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">string</span> <span class="c1">-- only if status = &quot;ERROR&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">auth</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">requireAuth</span><span class="p">()</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">success</span> <span class="k">then</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">501</span><span class="p">)</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Error in getting authentification scheme!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="k">end</span>
+
+<span class="k">if</span> <span class="n">auth</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">BASIC&#39;</span> <span class="k">then</span>
+    <span class="c1">--</span>
+    <span class="c1">-- everything OK, let&#39;s create the token for further calls and ad it to a cookie</span>
+    <span class="c1">--</span>
+    <span class="k">if</span> <span class="n">auth</span><span class="p">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">config</span><span class="p">.</span><span class="n">adminuser</span> <span class="ow">and</span> <span class="n">auth</span><span class="p">.</span><span class="n">password</span> <span class="o">==</span> <span class="n">config</span><span class="p">.</span><span class="n">password</span> <span class="k">then</span>
+        <span class="n">tokendata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">iss</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">sipi.unibas.ch&quot;</span><span class="p">,</span>
+            <span class="n">aud</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">knora.org&quot;</span><span class="p">,</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">auth</span><span class="p">.</span><span class="n">username</span>
+        <span class="p">}</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">generate_jwt</span><span class="p">(</span><span class="n">tokendata</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span> <span class="k">then</span>
+            <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">501</span><span class="p">)</span>
+            <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Could not generate JWT!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">end</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">sendCookie</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">sipi&#39;</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="p">{</span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">/&#39;</span><span class="p">,</span> <span class="n">expires</span> <span class="o">=</span> <span class="mi">3600</span><span class="p">})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span> <span class="k">then</span>
+            <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">501</span><span class="p">)</span>
+            <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Couldn&#39;t send cookie with JWT!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">end</span>
+    <span class="k">else</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">sendHeader</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">Basic realm=&quot;Sipi&quot;&#39;</span><span class="p">)</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Wrong credentials!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">end</span>
+<span class="k">elseif</span> <span class="n">auth</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">BEARER&#39;</span> <span class="k">then</span>
+    <span class="n">success</span><span class="p">,</span> <span class="n">jwt</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">decode_jwt</span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span> <span class="k">then</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">501</span><span class="p">)</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">Couldn&#39;t deocde JWT!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">end</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">jwt</span><span class="p">.</span><span class="n">iss</span> <span class="o">~=</span> <span class="s1">&#39;</span><span class="s">sipi.unibas.ch&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">jwt</span><span class="p">.</span><span class="n">aud</span> <span class="o">~=</span> <span class="s1">&#39;</span><span class="s">knora.org&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">jwt</span><span class="p">.</span><span class="n">user</span> <span class="o">~=</span> <span class="n">config</span><span class="p">.</span><span class="n">adminuser</span><span class="p">)</span> <span class="k">then</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+        <span class="n">server</span><span class="p">.</span><span class="n">sendHeader</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">Basic realm=&quot;Sipi&quot;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">end</span>
+<span class="k">elseif</span> <span class="n">auth</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">NOAUTH&#39;</span> <span class="k">then</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">setBuffer</span><span class="p">()</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">sendStatus</span><span class="p">(</span><span class="mi">401</span><span class="p">);</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">sendHeader</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">Basic realm=&quot;Sipi&quot;&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="k">else</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">status</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+    <span class="n">server</span><span class="p">.</span><span class="n">sendHeader</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">Basic realm=&quot;Sipi&quot;&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="server-copytmpfile">
+<h3><a class="toc-backref" href="#id29">server.copyTmpfile</a><a class="headerlink" href="#server-copytmpfile" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">success</span><span class="p">,</span> <span class="n">errormsg</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">copyTmpfile</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Sipi saves each uploaded file in a temporary location (given by the config
+variable <code class="docutils literal"><span class="pre">tmpdir</span></code>) and deletes it after the request has been served. This
+function is used to copy the file to another location where it can be
+retrieved later. Returns <code class="docutils literal"><span class="pre">true,</span> <span class="pre">nil</span></code> on success or <code class="docutils literal"><span class="pre">false,</span> <span class="pre">errormsg</span></code> on
+failure.</p>
+</div>
+<div class="section" id="server-log">
+<h3><a class="toc-backref" href="#id30">server.log</a><a class="headerlink" href="#server-log" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">loglevel</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Writes a message to <a class="reference external" href="http://man7.org/linux/man-pages/man3/syslog.3.html">syslog</a>. Severity levels are:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_EMERG</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_ALERT</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_CRIT</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_ERR</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_WARNING</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_NOTICE</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_INFO</span></code></li>
+<li><code class="docutils literal"><span class="pre">server.loglevel.LOG_DEBUG</span></code></li>
+</ul>
+</div>
+</div>
+<div class="section" id="sipi-variables-available-to-lua-scripts">
+<h2><a class="toc-backref" href="#id31">Sipi Variables Available to Lua Scripts</a><a class="headerlink" href="#sipi-variables-available-to-lua-scripts" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.has_openssl</span></code>: <code class="docutils literal"><span class="pre">true</span></code> if OpenSSL is available.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.secure</span></code>: <code class="docutils literal"><span class="pre">true</span></code> if the connection was made over HTTPS.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.host</span></code>: the hostname of the Sipi server that was used in the request.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.client_ip</span></code>: the IPv4 or IPv6 address of the client connecting to Sipi.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.client_port</span></code>: the port number of the client socket.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.uri</span></code>: the URL path used to access Sipi (does not include the hostname).</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.header</span></code>: a table containing all the HTTP request headers (in lowercase).</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.cookies</span></code>: a table of the cookies that were sent with the request.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.get</span></code>: a table of GET request parameters.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.post</span></code>: a table of POST request parameters.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">server.request</span></code>: all request parameters.</p>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">server.uploads</span></code>: an array of upload parameters, one per file. Each one is a table containing:</dt>
+<dd><ul class="first last simple">
+<li><code class="docutils literal"><span class="pre">fieldname</span></code>: the name of the form field.</li>
+<li><code class="docutils literal"><span class="pre">origname</span></code>: the original filename.</li>
+<li><code class="docutils literal"><span class="pre">tmpname</span></code>: a temporary path to the uploaded file.</li>
+<li><code class="docutils literal"><span class="pre">mimetype</span></code>: the MIME type of the uploaded file as provided by the browser.</li>
+<li><code class="docutils literal"><span class="pre">filesize</span></code>: the size of uploaded file in bytes.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="installing-lua-modules">
+<h2><a class="toc-backref" href="#id32">Installing Lua modules</a><a class="headerlink" href="#installing-lua-modules" title="Permalink to this headline">¶</a></h2>
+<p>To install Lua modules that can be used in Lua scripts, use
+<code class="docutils literal"><span class="pre">local/bin/luarocks</span></code>. Make sure that the location where the modules
+are stored is in the Lua package path, which is printed by <cite>local/bin/lurocks path</cite>.
+The Lua paths will be used by the Lua interpreter when loading modules in a script
+with <code class="docutils literal"><span class="pre">require</span></code> (see <a class="reference external" href="http://leafo.net/guides/customizing-the-luarocks-tree.html">Using LuaRocks to install packages in the current directory</a>).</p>
+<p>For example, using <code class="docutils literal"><span class="pre">local/bin/luarocks</span> <span class="pre">install</span> <span class="pre">--local</span> <span class="pre">package</span></code>, the package
+will be installed in <code class="docutils literal"><span class="pre">~/.luarocks/</span></code>. To include this path in the Lua&#8217;s
+interpreter package search path, you can use an environment variable. Running
+<code class="docutils literal"><span class="pre">local/bin/luarocks</span> <span class="pre">path</span></code> outputs the code you can use to do so.
+Alternatively, you can build the package path at the beginning of a Lua file
+by setting <code class="docutils literal"><span class="pre">package.path</span></code> and <code class="docutils literal"><span class="pre">package.cpath</span></code>
+(see <a class="reference external" href="http://leafo.net/guides/customizing-the-luarocks-tree.html#the-install-locations/using-a-custom-directory/quick-guide/running-scripts-with-packages">Running scripts with packages</a>).</p>
+</div>
+<div class="section" id="using-sqlite-in-lua-scripts">
+<h2><a class="toc-backref" href="#id33">Using SQLite in Lua Scripts</a><a class="headerlink" href="#using-sqlite-in-lua-scripts" title="Permalink to this headline">¶</a></h2>
+<p>Sipi supports <a class="reference external" href="https://www.sqlite.org/">SQLite</a> 3 databases, which can be accessed from Lua scripts. You
+should use <a class="reference external" href="https://www.lua.org/pil/8.4.html">pcall</a> to handle errors that may be returned by SQLite.</p>
+<div class="section" id="opening-an-sqlite-database">
+<h3><a class="toc-backref" href="#id34">Opening an SQLite Database</a><a class="headerlink" href="#opening-an-sqlite-database" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">db/test.db&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">RW&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This creates a new opaque database object. The first parameter is the path to
+the database file. The second parameter may be <code class="docutils literal"><span class="pre">'RO'</span></code> for read-only access,
+<code class="docutils literal"><span class="pre">'RW'</span></code> for read-write access, or <code class="docutils literal"><span class="pre">'CRW'</span></code> for read-write access. If the
+database file does not exist, it will be created using this option.</p>
+<p>To destroy the database object and free all resources, you can do this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>db = ~db
+</pre></div>
+</div>
+<p>However, Lua&#8217;s garbage collection will destroy the database object and free
+all resources when they are no longer used.</p>
+</div>
+<div class="section" id="preparing-a-query">
+<h3><a class="toc-backref" href="#id35">Preparing a Query</a><a class="headerlink" href="#preparing-a-query" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">qry</span> <span class="o">=</span> <span class="n">db</span> <span class="o">&lt;&lt;</span> <span class="s1">&#39;</span><span class="s">SELECT * FROM image&#39;</span>
+</pre></div>
+</div>
+<p>Or, if you want to use a prepared query statment:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">qry</span> <span class="o">=</span> <span class="n">db</span> <span class="o">&lt;&lt;</span> <span class="s1">&#39;</span><span class="s">INSERT INTO image (id, description) VALUES (?,?)&#39;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">qry</span></code> will then be a query object containing a prepared query. If the
+query object is not needed anymore, it may be destroyed:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>qry = ~qry
+</pre></div>
+</div>
+<p>Query objects should be destroyed explicitly if not needed any longer.</p>
+</div>
+<div class="section" id="executing-a-query">
+<h3><a class="toc-backref" href="#id36">Executing a Query</a><a class="headerlink" href="#executing-a-query" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">row</span> <span class="o">=</span> <span class="n">qry</span><span class="p">()</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">do</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;</span><span class="s"> -&gt; &#39;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">qry</span><span class="p">()</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>Or with a prepared statment:</p>
+<div class="highlight-lua"><div class="highlight"><pre><span></span><span class="n">qry</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">SGV_1960_00315&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">This is an image of a steam engine...&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The second way is used for prepared queries that contain parameters.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building Sipi from Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running Sipi</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Customizing Sipi with Lua Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#custom-routes">Custom Routes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authentication-and-authorization">Authentication and Authorization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sipi-functions-available-to-lua-scripts">Sipi Functions Available to Lua Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sipi-variables-available-to-lua-scripts">Sipi Variables Available to Lua Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-lua-modules">Installing Lua modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-sqlite-in-lua-scripts">Using SQLite in Lua Scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developing.html">Developing Sipi</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="running.html" title="Running Sipi"
+              >previous</a> |
+            <a href="developing.html" title="Developing Sipi"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/lua.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Lukas Rosenthaler, Andrea Bianco, Benjamin Geer, Tobias Schweizer, Ivan Subotic.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
