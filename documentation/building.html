@@ -65,6 +65,10 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#compiling-the-source-code" id="id6">Compiling the Source Code</a></li>
+<li><a class="reference internal" href="#running-tests" id="id7">Running Tests</a></li>
+<li><a class="reference internal" href="#making-a-directory-tree-for-installing-sipi" id="id8">Making a Directory Tree for Installing Sipi</a></li>
+<li><a class="reference internal" href="#generating-documentation" id="id9">Generating Documentation</a></li>
+<li><a class="reference internal" href="#starting-over" id="id10">Starting Over</a></li>
 </ul>
 </div>
 <div class="section" id="prerequisites">
@@ -74,7 +78,7 @@ toolkit that is not provided with Sipi and must be licensed separately.
 The Kakadu source code archive <code class="docutils literal"><span class="pre">v7_9-01727L.zip</span></code> must be placed in the
 <code class="docutils literal"><span class="pre">vendor</span></code> subdirectory of the source tree before building Sipi.</p>
 <p>Sipi&#8217;s build process requires <a class="reference external" href="https://cmake.org/">CMake</a>, a C++ compiler that supports the C++11
-standard (such as <a class="reference external" href="https://gcc.gnu.org">gcc</a> or <a class="reference external" href="https://clang.llvm.org/">clang</a>), and several libraries that are readily
+standard (such as <a class="reference external" href="https://gcc.gnu.org">GCC</a> or <a class="reference external" href="https://clang.llvm.org/">clang</a>), and several libraries that are readily
 available on supported platforms. The test framework requires <a class="reference external" href="https://www.python.org/">Python 3</a> and
 <a class="reference external" href="https://nginx.org/en/">nginx</a>. Instructions for installing these prerequisites are given below.</p>
 <p>The build process downloads and builds Sipi&#8217;s other prerequisites.</p>
@@ -139,8 +143,13 @@ and run:</p>
 </div>
 <div class="section" id="centos-7">
 <h3><a class="toc-backref" href="#id5">CentOS 7</a><a class="headerlink" href="#centos-7" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-none"><div class="highlight"><pre><span></span>sudo yum -y install gcc-c++
-sudo yum -y install cmake
+<p>This requires <a class="reference external" href="https://gcc.gnu.org">GCC</a> version 5.3 or greater. You can install it by installing
+<a class="reference external" href="https://www.softwarecollections.org/en/scls/rhscl/devtoolset-4/">devtoolset-4</a>, and adding this to your <code class="docutils literal"><span class="pre">.bash_profile</span></code>:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>source scl_source enable devtoolset-4
+</pre></div>
+</div>
+<p>Then:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>sudo yum -y install cmake
 sudo yum -y install readline-devel
 sudo yum -y install doxygen
 sudo yum -y install patch
@@ -166,7 +175,7 @@ sudo pip3.5 install iiif_validator
 </div>
 <div class="section" id="compiling-the-source-code">
 <h2><a class="toc-backref" href="#id6">Compiling the Source Code</a><a class="headerlink" href="#compiling-the-source-code" title="Permalink to this headline">¶</a></h2>
-<p>Start in the <code class="docutils literal"><span class="pre">build</span></code> directory:</p>
+<p>Start in the <code class="docutils literal"><span class="pre">build</span></code> subdirectory of the source tree:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>cd build
 </pre></div>
 </div>
@@ -175,12 +184,26 @@ sudo pip3.5 install iiif_validator
 make
 </pre></div>
 </div>
-<p>Install Sipi in the <code class="docutils literal"><span class="pre">local</span></code> subdirectory of the source tree:</p>
+</div>
+<div class="section" id="running-tests">
+<h2><a class="toc-backref" href="#id7">Running Tests</a><a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
+<p>The tests are currently very incomplete, but you can run them in the <code class="docutils literal"><span class="pre">build</span></code> directory like this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>make check
+</pre></div>
+</div>
+</div>
+<div class="section" id="making-a-directory-tree-for-installing-sipi">
+<h2><a class="toc-backref" href="#id8">Making a Directory Tree for Installing Sipi</a><a class="headerlink" href="#making-a-directory-tree-for-installing-sipi" title="Permalink to this headline">¶</a></h2>
+<p>In <code class="docutils literal"><span class="pre">build</span></code>, type this to install Sipi in the <code class="docutils literal"><span class="pre">local</span></code> subdirectory of the source tree:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>make install
 </pre></div>
 </div>
+<p>You can then copy the contents of <code class="docutils literal"><span class="pre">local</span></code> to the desired location.</p>
+</div>
+<div class="section" id="generating-documentation">
+<h2><a class="toc-backref" href="#id9">Generating Documentation</a><a class="headerlink" href="#generating-documentation" title="Permalink to this headline">¶</a></h2>
 <p>To generate this manual in HTML format, <code class="docutils literal"><span class="pre">cd</span></code> to the <code class="docutils literal"><span class="pre">manual</span></code>
-directory and type:</p>
+subdirectory of the source tree and type:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>make html
 </pre></div>
 </div>
@@ -194,6 +217,9 @@ directory and type:</p>
 <code class="docutils literal"><span class="pre">doc/html</span></code>. To generate developer documentation in PDF format,
 first ensure that you have <a class="reference external" href="https://www.latex-project.org/">LaTeX</a> installed. Then <code class="docutils literal"><span class="pre">cd</span></code>
 to <code class="docutils literal"><span class="pre">doc/html/latex</span></code> and type <code class="docutils literal"><span class="pre">make</span></code>.</p>
+</div>
+<div class="section" id="starting-over">
+<h2><a class="toc-backref" href="#id10">Starting Over</a><a class="headerlink" href="#starting-over" title="Permalink to this headline">¶</a></h2>
 <p>To delete the previous build and start over from scratch, <code class="docutils literal"><span class="pre">cd</span></code> to
 the top level of the source tree and type:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>rm -rf build/* lib local extsrcs
@@ -214,6 +240,10 @@ the top level of the source tree and type:</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Building Sipi from Source Code</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#compiling-the-source-code">Compiling the Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-tests">Running Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-a-directory-tree-for-installing-sipi">Making a Directory Tree for Installing Sipi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-documentation">Generating Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-over">Starting Over</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="running.html">Running Sipi</a></li>
