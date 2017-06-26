@@ -1,5 +1,5 @@
 # Copyright © 2016 Lukas Rosenthaler, Andrea Bianco, Benjamin Geer,
-# Ivan Subotic, Tobias Schweizer, André Kilchenmann, and André Fatton.
+# Ivan Subotic, Tobias Schweizer, André Kilchenmann, and Sepideh Alassi.
 # This file is part of Sipi.
 # Sipi is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -20,7 +20,8 @@
 # License along with Sipi.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
-
+import os
+import requests
 # Tests basic functionality of the Sipi server.
 
 class TestServer:
@@ -61,3 +62,19 @@ class TestServer:
         response_json = manager.post_file("/make_thumbnail", manager.data_dir_path("knora/Leaves.jpg"), "image/jpeg")
         filename = response_json["filename"]
         manager.expect_status_code("/thumbs/{}.jpg/full/full/0/default.jpg".format(filename), 200)
+
+    def test_segfault(self, manager):
+        """not crash if image is not found by kakadu"""
+        assert manager.sipi_is_running()
+        response_json = manager.post_file("/make_thumbnail", manager.data_dir_path("knora/Leaves.jpg"), "image/jpeg")
+        filename = response_json["filename"]
+        filepath = manager.data_dir_path("thumbs/" + filename + ".jpg")
+        manager.log.debug('\n')
+        manager.log.debug(' ' + filepath)
+
+        os.remove(filepath)
+        sipi_url = manager.make_sipi_url("/thumbs/{}.jpg/full/full/0/default.jpg".format(filename))
+        response = requests.get(sipi_url, headers=None, stream=True)
+        assert manager.sipi_is_running()
+
+

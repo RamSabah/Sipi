@@ -1,5 +1,5 @@
 # Copyright © 2016 Lukas Rosenthaler, Andrea Bianco, Benjamin Geer,
-# Ivan Subotic, Tobias Schweizer, André Kilchenmann, and André Fatton.
+# Ivan Subotic, Tobias Schweizer, André Kilchenmann, and Sepideh Alassi.
 # This file is part of Sipi.
 # Sipi is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -33,6 +33,7 @@ import filecmp
 import shutil
 import psutil
 import re
+import logging
 
 
 @pytest.fixture(scope="session")
@@ -45,16 +46,18 @@ def manager():
     manager.stop_sipi()
     manager.stop_nginx()
 
-
 class SipiTestManager:
     """Controls Sipi and Nginx during tests."""
 
     def __init__(self):
         """Reads config.ini."""
-
         self.config = configparser.ConfigParser()
         with open(os.path.abspath("config.ini")) as config_file:
             self.config.read_file(config_file)
+
+        logging.basicConfig(level=logging.INFO)
+        self.log = logging.getLogger('SipiTestManager')
+        self.log.setLevel(logging.DEBUG)
 
         self.sipi_working_dir = os.path.abspath("..")
 
@@ -345,7 +348,6 @@ class SipiTestManager:
 
         if validator_process.returncode != 0:
             raise SipiTestError("IIIF validation failed (wrote {}):\n{}".format(self.sipi_log_file, validator_process.stdout))
-
 
 class SipiTestError(Exception):
     """Indicates an error in a Sipi test."""
