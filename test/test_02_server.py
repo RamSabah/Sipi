@@ -70,11 +70,14 @@ class TestServer:
         filename = response_json["filename"]
         filepath = manager.data_dir_path("thumbs/" + filename + ".jpg")
         manager.log.debug('\n')
-        manager.log.debug(' ' + filepath)
-
+        manager.log.debug(manager.get_sipi_output())
+        manager.log.debug('remove: ' + filepath)
         os.remove(filepath)
         sipi_url = manager.make_sipi_url("/thumbs/{}.jpg/full/full/0/default.jpg".format(filename))
+        manager.log.debug("http get: " + sipi_url)
         response = requests.get(sipi_url, headers=None, stream=True)
+        manager.log.debug('response status code: ' + str(response.status_code))
+        manager.log.debug(manager.get_sipi_output())
         assert manager.sipi_is_running()
 
 
