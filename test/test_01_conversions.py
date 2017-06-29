@@ -19,12 +19,11 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with Sipi.  If not, see <http://www.gnu.org/licenses/>.
 
-import pytest
 import tempfile
 import os
 
-# Tests file conversions.
 
+# Tests file conversions.
 class TestConversions:
 
     component = "The Sipi command-line program"

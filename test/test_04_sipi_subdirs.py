@@ -23,12 +23,13 @@ import os
 import requests
 
 
-# Tests basic functionality of the Sipi server.
+# Tests subdir functionality of the Sipi server.
 class TestServer:
     component = "The Sipi server"
 
-    def test_sipi_starts(self, manager):
-        """start"""
+    def test_sipi_subdirs(self, manager(sipi = False, nginx = False)):
+        """Test Sipi subdir functionality"""
+
         assert manager.sipi_is_running()
 
     def test_sipi_log_output(self, manager):

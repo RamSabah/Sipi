@@ -37,14 +37,26 @@ import logging
 
 
 @pytest.fixture(scope="session")
-def manager():
-    """Returns a SipiTestManager. Automatically starts Sipi and nginx before tests are run, and stops them afterwards."""
-    manager = SipiTestManager()
-    manager.start_nginx()
-    manager.start_sipi()
-    yield manager
-    manager.stop_sipi()
-    manager.stop_nginx()
+def manager(sipi = True, nginx = True):
+    """Returns a SipiTestManager. Automatically starts Sipi and nginx, if requested, before tests are run,
+    and stops them afterwards, if they where requested."""
+
+    stm = SipiTestManager()
+
+    if nginx:
+        manager.start_nginx()
+
+    if sipi:
+        manager.start_sipi()
+
+    yield stm
+
+    if sipi:
+        manager.stop_sipi()
+
+    if nginx:
+        manager.stop_nginx()
+
 
 class SipiTestManager:
     """Controls Sipi and Nginx during tests."""
@@ -95,7 +107,7 @@ class SipiTestManager:
         self.compare_out_re = re.compile(r"^(\d+) \(([0-9.]+)\).*$")
         self.info_command = "identify -verbose {}"
 
-    def start_sipi(self):
+    def start_sipi(self, cmd_override):
         """Starts Sipi and waits until it is ready to receive requests."""
 
         def check_for_ready_output(line):
@@ -121,9 +133,15 @@ class SipiTestManager:
         except OSError:
             pass
 
-        # Start a Sipi process and capture its output.
-        sipi_args = shlex.split(self.sipi_command)
+        # get sipi args
+        if cmd_override:
+            sipi_args = shlex.split(cmd_override)
+        else:
+            sipi_args = shlex.split(self.sipi_command)
+
         sipi_start_time = time.time()
+
+        # Start a Sipi process and capture its output.
         self.sipi_process = subprocess.Popen(sipi_args,
             cwd=self.sipi_working_dir,
             stdout=subprocess.PIPE,
