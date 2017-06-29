@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016 Lukas Rosenthaler, Andrea Bianco, Benjamin Geer,
- * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and André Fatton.
+ * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and Sepideh Alassi.
  * This file is part of Sipi.
  * Sipi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -29,6 +29,7 @@
 
 #include "shttps/LuaServer.h"
 #include "shttps/Connection.h"
+#include "optionparser.h"
 
 namespace Sipi {
 
@@ -75,7 +76,7 @@ namespace Sipi {
     public:
         SipiConf();
 
-        SipiConf(shttps::LuaServer &luacfg);
+        SipiConf(shttps::LuaServer &luacfg, std::vector<option::Option> &options);
 
         inline std::string getUseridStr(void) { return userid_str; }
 
@@ -142,6 +143,10 @@ namespace Sipi {
         inline std::string getAdminUser(void) { return adminuser; }
 
         inline std::string getPassword(void) { return password; }
+
+        friend std::ostream &operator<<(std::ostream& out, const SipiConf &config);
+
+        static std::string vtos(std::vector<std::string> stringvector);
     };
 
 }

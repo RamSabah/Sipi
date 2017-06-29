@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016 Lukas Rosenthaler, Andrea Bianco, Benjamin Geer,
- * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and André Fatton.
+ * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and Sepideh Alassi.
  * This file is part of Sipi.
  * Sipi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "sipi.h"
 #include "curl/curl.h"
 #include "shttps/Global.h"
 #include "shttps/LuaServer.h"
@@ -184,30 +185,7 @@ static void sipiConfGlobals(lua_State *L, shttps::Connection &conn, void *user_d
     lua_setglobal(L, "config");
 }
 
-enum optionIndex {
-    UNKNOWN,
-    CONFIGFILE,
-    FILEIN,
-    FORMAT,
-    ICC,
-    QUALITY,
-    REGION,
-    REDUCE,
-    SIZE,
-    SCALE,
-    SKIPMETA,
-    MIRROR,
-    ROTATE,
-    SALSAH,
-    WATERMARK,
-    COMPARE,
-    SERVERPORT,
-    NTHREADS,
-    IMGROOT,
-    LOGLEVEL,
-    QUERY,
-    HELP
-};
+using namespace ConfigOptionIndex;
 
 option::ArgStatus SipiMultiChoice(const option::Option &option, bool msg) {
     if (option.arg != 0) {
@@ -252,36 +230,40 @@ option::ArgStatus SipiMultiChoice(const option::Option &option, bool msg) {
     return option::ARG_ILLEGAL;
 }
 
-const option::Descriptor usage[] = {{UNKNOWN,    0, "",      "",           option::Arg::None,     "Sipi (Simple Image Presentation Interface)\nSipi is developed by the Digital Humanities Lab at the University of Basel\n"
-                                                                                                          "USAGE : sipi [options]\n"
-                                                                                                          "Options:"},
-                                    {CONFIGFILE, 0, "c",     "config",     option::Arg::NonEmpty, "  --config filename, -c filename  \tConfiguration file for web server.\n"},
-                                    {FILEIN,     0, "f",     "file",       option::Arg::NonEmpty, "  --file fileIn, -f fileIn  \tinput file to be converted. Usage: sipi [options] -f fileIn fileout\n"},
-                                    {FORMAT,     0, "F",     "format",     SipiMultiChoice,       "  --format Value, -F Value  \tOutput format Value can be: jpx,jpg,tif,png.\n"},
-                                    {ICC,        0, "I",     "ICC",        SipiMultiChoice,       "  --ICC Value, -I Value  \tConvert to ICC profile. Value can be: none,sRGB,AdobeRGB,GRAY.\n"},
-                                    {QUALITY,    0, "q",     "quality",    option::Arg::NumericI, "  --quality Value, -q Value  \tQuality (compression). Value can any integer between 1 and 100\n"},
-                                    {REGION,     0, "r",     "region",     option::Arg::NonEmpty, "  --region x,y,w,h, -r x,y,w,h  \tSelect region of interest, where x,y,w,h are integer values\n"},
-                                    {REDUCE,     0, "R",     "Reduce",     option::Arg::NumericI, "  --Reduce Value, -R Value  \tReduce image size by factor Value (cannot be used together with --size and --scale)\n"},
-                                    {SIZE,       0, "s",     "size",       option::Arg::NonEmpty, "  --size w,h -s w,h  \tResize image to given size w,h (cannot be used together with --reduce and --scale)\n"},
-                                    {SCALE,      0, "S",     "Scale",      option::Arg::NonEmpty, "  --Scale Value, -S Value  \tResize image by the given percentage Value (cannot be used together with --size and --reduce)\n"},
-                                    {SKIPMETA,   0, "k",     "skipmeta",   SipiMultiChoice,       "  --skipmeta Value, -k Value  \tSkip the given metadata. Value can be none,all\n"},
-                                    {MIRROR,     0, "m",     "mirror",     SipiMultiChoice,       "  --mirror Value, -m Value  \tMirror the image. Value can be: none,horizontal,vertical\n"},
-                                    {ROTATE,     0, "o",     "rotate",     option::Arg::NumericD, "  --rotate Value, -o Value  \tRotate the image. by degree Value, angle between (0:360)\n"},
-                                    {SALSAH,     0, "a",     "salsah",     option::Arg::None,     "  --salsah, -s  \tSpecial flag for SALSAH internal use\n"},
-                                    {COMPARE,    0, "C",     "Compare",    option::Arg::NonEmpty, "  --Compare file1 --Compare file2 or -C file1 -C file2  \tCompare two files\n"},
-                                    {WATERMARK,  0, "w",     "watermark",  option::Arg::NonEmpty, "  --watermark file, -w file  \tAdd a watermark to the image\n"},
-                                    {SERVERPORT, 0, "p",     "serverport", option::Arg::NonEmpty, "  --serverport Value, -p Value  \tPort of the web server\n"},
-                                    {NTHREADS,   0, "t",     "nthreads",   option::Arg::NonEmpty, "  --nthreads Value, -t Value  \tNumber of threads for web server\n"},
-                                    {IMGROOT,    0, "i",     "imgroot",    option::Arg::NonEmpty, "  --imgroot Value, -i Value  \tRoot directory containing the images for the web server\n"},
-                                    {LOGLEVEL,   0, "l",     "loglevel",   SipiMultiChoice,       "  --loglevel Value, -l Value  \tLogging level Value can be: TRACE,DEBUG,INFO,WARN,ERROR,CRITICAL,OFF\n"},
-                                    {QUERY,      0, "x",     "query",      option::Arg::None,     "  --query -x \tDump all information about the given file"},
-                                    {HELP,       0, "",      "help",       option::Arg::None,     "  --help  \tPrint usage and exit.\n"},
-                                    {UNKNOWN,    0, "",      "",           option::Arg::None,     "\nExamples:\n"
-                                                                                                          "USAGE (server): sipi --config filename or sipi --c filename where filename is a properly formatted configuration file in Lua\n"
-                                                                                                          "USAGE (server): sipi [options]\n"
-                                                                                                          "USAGE (image converter): sipi [options] -f fileIn fileout \n"
-                                                                                                          "USAGE (image diff): sipi --Compare file1 --Compare file2 oor sipi --C file1 -C file2 \n\n"},
-                                    {0,          0, nullptr, nullptr,      0,                     nullptr}};
+const option::Descriptor usage[] = {{UNKNOWN,           0, "",      "",                 option::Arg::None,     "Sipi (Simple Image Presentation Interface)\nSipi is developed by the Digital Humanities Lab at the University of Basel\n"
+                                                                                                                        "USAGE : sipi [options]\n"
+                                                                                                                        "Options:"},
+                                    {CONFIGFILE,        0, "c",     "config",           option::Arg::NonEmpty, "  --config filename, -c filename  \tConfiguration file for web server.\n"},
+                                    {FILEIN,            0, "f",     "file",             option::Arg::NonEmpty, "  --file fileIn, -f fileIn  \tinput file to be converted. Usage: sipi [options] -f fileIn fileout\n"},
+                                    {FORMAT,            0, "F",     "format",           SipiMultiChoice,       "  --format Value, -F Value  \tOutput format Value can be: jpx,jpg,tif,png.\n"},
+                                    {ICC,               0, "I",     "ICC",              SipiMultiChoice,       "  --ICC Value, -I Value  \tConvert to ICC profile. Value can be: none,sRGB,AdobeRGB,GRAY.\n"},
+                                    {QUALITY,           0, "q",     "quality",          option::Arg::NumericI, "  --quality Value, -q Value  \tQuality (compression). Value can any integer between 1 and 100\n"},
+                                    {REGION,            0, "r",     "region",           option::Arg::NonEmpty, "  --region x,y,w,h, -r x,y,w,h  \tSelect region of interest, where x,y,w,h are integer values\n"},
+                                    {REDUCE,            0, "R",     "Reduce",           option::Arg::NumericI, "  --Reduce Value, -R Value  \tReduce image size by factor Value (cannot be used together with --size and --scale)\n"},
+                                    {SIZE,              0, "s",     "size",             option::Arg::NonEmpty, "  --size w,h -s w,h  \tResize image to given size w,h (cannot be used together with --reduce and --scale)\n"},
+                                    {SCALE,             0, "S",     "Scale",            option::Arg::NonEmpty, "  --Scale Value, -S Value  \tResize image by the given percentage Value (cannot be used together with --size and --reduce)\n"},
+                                    {SKIPMETA,          0, "k",     "skipmeta",         SipiMultiChoice,       "  --skipmeta Value, -k Value  \tSkip the given metadata. Value can be none,all\n"},
+                                    {MIRROR,            0, "m",     "mirror",           SipiMultiChoice,       "  --mirror Value, -m Value  \tMirror the image. Value can be: none,horizontal,vertical\n"},
+                                    {ROTATE,            0, "o",     "rotate",           option::Arg::NumericD, "  --rotate Value, -o Value  \tRotate the image. by degree Value, angle between (0:360)\n"},
+                                    {SALSAH,            0, "a",     "salsah",           option::Arg::None,     "  --salsah, -a  \tSpecial flag for SALSAH internal use\n"},
+                                    {COMPARE,           0, "C",     "Compare",          option::Arg::NonEmpty, "  --Compare file1 --Compare file2 or -C file1 -C file2  \tCompare two files\n"},
+                                    {WATERMARK,         0, "w",     "watermark",        option::Arg::NonEmpty, "  --watermark file, -w file  \tAdd a watermark to the image\n"},
+                                    {SERVERPORT,        0, "p",     "serverport",       option::Arg::NonEmpty, "  --serverport Value, -p Value  \tPort of the web server\n"},
+                                    {NTHREADS,          0, "t",     "nthreads",         option::Arg::NonEmpty, "  --nthreads Value, -t Value  \tNumber of threads for web server\n"},
+                                    {IMGROOT,           0, "i",     "imgroot",          option::Arg::NonEmpty, "  --imgroot Value, -i Value  \tRoot directory containing the images for the web server\n"},
+                                    {LOGLEVEL,          0, "l",     "loglevel",         SipiMultiChoice,       "  --loglevel Value, -l Value  \tLogging level Value can be: TRACE,DEBUG,INFO,WARN,ERROR,CRITICAL,OFF\n"},
+                                    {QUERY,             0, "x",     "query",            option::Arg::None,     "  --query -x \tDump all information about the given file"},
+                                    {PREFIXASPATH,      0, "",      "prefixaspath",     option::Arg::None,     "  --prefixaspath \tUse the IIIF prefix to build the path to the image files\n"},
+                                    {SUBDIRLEVELS,      0, "",      "subdirlevels",     option::Arg::NonEmpty, "  --subdirlevels Value \tThe number of subdirectory levels sipi is using to organize files. The maximum is 6.\n"},
+                                    {SUBDIREXCLUDES,    0, "",      "subdirexcludes",   option::Arg::NonEmpty, "  --subdirexcludes Dir \tDirectory to exclude from generating the subdirectory structure\n"},
+                                    {PRINTCONFIG,       0, "",      "printconfig",      option::Arg::None,     "  --printconfig \tPrints configuration to console output on server startup\n"},
+                                    {HELP,              0, "",      "help",             option::Arg::None,     "  --help  \tPrint usage and exit.\n"},
+                                    {UNKNOWN,           0, "",      "",                 option::Arg::None,     "\nExamples:\n"
+                                                                                                                    "USAGE (server): sipi --config filename or sipi --c filename where filename is a properly formatted configuration file in Lua\n"
+                                                                                                                    "USAGE (server): sipi [options]\n"
+                                                                                                                    "USAGE (image converter): sipi [options] -f fileIn fileout \n"
+                                                                                                                    "USAGE (image diff): sipi --Compare file1 --Compare file2 oor sipi --C file1 -C file2 \n\n"},
+                                    {0,                 0, nullptr, nullptr,            0,                     nullptr}};
 
 //small function to check if file exist
 inline bool exists_file(const std::string &name) {
@@ -427,12 +409,18 @@ int main(int argc, char *argv[]) {
         try {
             std::cout << std::endl << SIPI_BUILD_DATE << std::endl;
             std::cout << SIPI_BUILD_VERSION << std::endl;
-            //read and parse the config file (config file is a lua script)
+
+            // read and parse the config file (config file is a lua script)
             shttps::LuaServer luacfg(configfile);
 
-            //store the config option in a SipiConf obj
-            Sipi::SipiConf sipiConf(luacfg);
+            // transform the lua configuration into a SipiConf object and apply command options
+            Sipi::SipiConf sipiConf(luacfg, options);
 
+            // print config if requested by commandline flag
+            if (options[PRINTCONFIG]) {
+                std::cout << "gaga" << std::endl;
+                std::cout << sipiConf << std::endl;
+            }
 
             //
             // here we check the levels... and migrate if necessary

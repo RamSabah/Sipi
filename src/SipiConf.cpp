@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016 Lukas Rosenthaler, Andrea Bianco, Benjamin Geer,
- * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and André Fatton.
+ * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and Sepideh Alassi.
  * This file is part of Sipi.
  * Sipi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,13 +20,18 @@
  * You should have received a copy of the GNU Affero General Public
  * License along with Sipi.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "SipiConf.h"
 #include <thread>
+#include <sipi.h>
 
 namespace Sipi {
+
+    using namespace ConfigOptionIndex;
+
     SipiConf::SipiConf() {}
 
-    SipiConf::SipiConf(shttps::LuaServer &luacfg) {
+    SipiConf::SipiConf(shttps::LuaServer &luacfg, std::vector<option::Option> &options) {
         userid_str = luacfg.configString("sipi", "userid", "");
         img_root = luacfg.configString("sipi", "imgroot", ".");
         subdir_levels = luacfg.configInteger("sipi", "subdir_levels", 0);
@@ -88,6 +93,44 @@ namespace Sipi {
         routes = luacfg.configRoute("routes");
         docroot = luacfg.configString("fileserver", "docroot", "");
         wwwroute = luacfg.configString("fileserver", "wwwroute", "");
+
+        // apply the overrides
+        //PREFIXASPATH,
+        //        SUBDIRLEVELS,
+        //        SUBDIREXCLUDES,
+
+        if (options[PREFIXASPATH]) {
+            prefix_as_path = true;
+        }
+
+        if (options[SUBDIRLEVELS]) {
+            subdir_levels = std::stoi(options[SUBDIRLEVELS].arg);
+        }
+
+        if (options[SUBDIREXCLUDES]) {
+            for (option::Option *opt = options[COMPARE]; opt; opt = opt->next()) {
+                subdir_excludes.push_back(std::string(opt->arg));
+            }
+        }
     }
 
+    std::ostream& operator<<(std::ostream& out, const SipiConf &config)
+    {
+        out << "userid_str: " << config.userid_str;
+        out << "prefix_as_path: " << config.prefix_as_path;
+        out << "subdir_levels: " << config.subdir_levels;
+        out << "subdir_excludes: " << SipiConf::vtos(config.subdir_excludes);
+
+        return out;
+    }
+
+    std::string SipiConf::vtos(std::vector<std::string> stringvector) {
+
+        std::string result;
+        for(auto const& value: stringvector) {
+            /* std::cout << value; ... */
+            result = result + value + ", ";
+        }
+        return result;
+    }
 }

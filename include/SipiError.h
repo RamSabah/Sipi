@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016 Lukas Rosenthaler, Andrea Bianco, Benjamin Geer,
- * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and André Fatton.
+ * Ivan Subotic, Tobias Schweizer, André Kilchenmann, and Sepideh Alassi.
  * This file is part of Sipi.
  * Sipi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published

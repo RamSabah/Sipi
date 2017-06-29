@@ -92,7 +92,7 @@ sipi = {
     -- for certain prefixes *not* to use subdirs. A list of these prefix-directories
     -- can be given with this configuration parameter.
     --
-    subdir_excludes = { "tmp", "thumb"},
+    subdir_excludes = { "tmp", "thumbs"},
 
     --
     -- Lua script which is executed on initialization of the Lua interpreter
