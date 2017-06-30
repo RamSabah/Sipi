@@ -56,3 +56,8 @@ namespace ConfigOptionIndex {
         HELP
     };
 }
+
+namespace ConfigConstants {
+
+    const int MAX_SUBDIR_LEVEL = 3;
+}

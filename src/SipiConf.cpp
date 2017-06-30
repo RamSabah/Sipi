@@ -34,7 +34,15 @@ namespace Sipi {
     SipiConf::SipiConf(shttps::LuaServer &luacfg, std::vector<option::Option> &options) {
         userid_str = luacfg.configString("sipi", "userid", "");
         img_root = luacfg.configString("sipi", "imgroot", ".");
+
+
         subdir_levels = luacfg.configInteger("sipi", "subdir_levels", 0);
+
+        if (subdir_levels > ConfigConstants::MAX_SUBDIR_LEVEL){
+            std::cerr << "Config subdir_levels = " << subdir_levels << " exceeds maximum of " << ConfigConstants::MAX_SUBDIR_LEVEL << ". Using maximum value." << std::endl;
+            subdir_levels = ConfigConstants::MAX_SUBDIR_LEVEL;
+        }
+
         subdir_excludes = luacfg.configStringList("sipi", "subdir_excludes"); // has no defaults, returns an empty vector if nothing is there
         hostname = luacfg.configString("sipi", "hostname", "localhost");
         port = luacfg.configInteger("sipi", "port", 3333);
@@ -44,6 +52,7 @@ namespace Sipi {
         ssl_key = luacfg.configString("sipi", "ssl_key", "");
 #endif
         init_script = luacfg.configString("sipi", "initscript", ".");
+
         std::string cachesize_str = luacfg.configString("sipi", "cachesize", "0");
 
         if (!cachesize_str.empty()) {
@@ -66,6 +75,7 @@ namespace Sipi {
         thumb_size = luacfg.configString("sipi", "thumb_size", "!128,128");
         cache_n_files = luacfg.configInteger("sipi", "cache_nfiles", 0);
         n_threads = luacfg.configInteger("sipi", "nthreads", 2 * std::thread::hardware_concurrency());
+
         std::string max_post_size_str = luacfg.configString("sipi", "max_post_size", "0");
 
         if (!max_post_size_str.empty()) {

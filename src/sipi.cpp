@@ -216,8 +216,7 @@ option::ArgStatus SipiMultiChoice(const option::Option &option, bool msg) {
                     break;
 
                 case SUBDIRLEVELS:
-                    if (str == "0" || str == "1" || str == "2" || str == "3" || str == "4" || str == "5"
-                        || str == "6") {
+                    if (str == "0" || str == "1" || str == "2" || str == "3") {
                         return option::ARG_OK;
                     }
                     break;

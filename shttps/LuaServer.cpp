@@ -269,7 +269,9 @@ namespace shttps {
     /*!
      * Instantiates a Lua server
      *
-     * \param
+     * \param luafile the path to the file or code to be executed.
+     * \param iscode  denotes if passed string contains tha path to a file or the code to be executed.
+     *                Default value is 'False'.
      */
     LuaServer::LuaServer(const std::string &luafile, bool iscode) {
         if ((L = luaL_newstate()) == nullptr) {
