@@ -425,6 +425,7 @@ int main(int argc, char *argv[]) {
             //
             // here we check the levels... and migrate if necessary
             //
+            std::cerr << "Checking current subdir level" << std::endl;
             if (sipiConf.getPrefixAsPath()) {
                 std::vector<std::string> dirs_to_exclude = sipiConf.getSubdirExcludes();
 
@@ -449,8 +450,10 @@ int main(int argc, char *argv[]) {
                         int levels = SipiFilenameHash::check_levels(path);
                         int new_levels = sipiConf.getSubdirLevels();
                         if (levels != new_levels) {
-                            std::cerr << "Subdir migration of " << path << "...." << std::endl;
+                            std::cerr << "Subdir migration of " << path << "..." << std::endl;
                             SipiFilenameHash::migrateToLevels(path, new_levels);
+                        } else {
+                            std::cerr << "Finished checking" << std::endl;
                         }
                     }
                 }
@@ -464,6 +467,8 @@ int main(int argc, char *argv[]) {
                 if (levels != new_levels) {
                     std::cerr << "Subdir migration of " << sipiConf.getImgRoot() << "...." << std::endl;
                     SipiFilenameHash::migrateToLevels(sipiConf.getImgRoot(), new_levels);
+                } else {
+                    std::cerr << "Finished checking" << std::endl;
                 }
             }
             SipiFilenameHash::setLevels(sipiConf.getSubdirLevels());
@@ -476,6 +481,7 @@ int main(int argc, char *argv[]) {
             syslog(LOG_INFO, SIPI_BUILD_DATE);
             syslog(LOG_INFO, SIPI_BUILD_VERSION);
             setlogmask(old_ll);
+
 
 #           ifdef SHTTPS_ENABLE_SSL
 

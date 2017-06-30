@@ -239,16 +239,18 @@ static bool remove_level(const std::string& path, int cur_level) {
 
 void SipiFilenameHash::migrateToLevels(const std::string& imgdir, int levels) {
     int act_levels = check_levels(imgdir);
-    std::cerr << "act_levels=" << act_levels << " levels=" << levels << std::endl;
+    std::cerr << "current level: " << act_levels << ", new level: " << levels << std::endl;
     if (levels > act_levels) {
+        std::cerr << "Adding levels..." << std::endl;
         for (int i = 0; i < (levels - act_levels); i++) {
+            std::cerr << "Add a level" << std::endl;
             add_level(imgdir, 0);
         }
 
     } else if (levels < act_levels) {
         std::cerr << "Removing levels..." << std::endl;
         for (int i = 0; i < (act_levels - levels); i++) {
-            std::cerr << "Remove a level..........." << std::endl;
+            std::cerr << "Remove a level." << std::endl;
             (void) remove_level(imgdir, 0);
         }
 

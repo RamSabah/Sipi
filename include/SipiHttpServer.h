@@ -60,7 +60,7 @@ namespace Sipi {
         std::string _imgroot;
         std::string _salsah_prefix;
         bool _prefix_as_path;
-        std::vector<std::string> _dirs_to_exclude; //!< Directories which should habe no subdirs even if subdirs are enabled
+        std::vector<std::string> _dirs_to_exclude; //!< Directories which should have no subdirs even if subdirs are enabled
         std::string _logfile;
         std::shared_ptr<SipiCache> _cache;
 
