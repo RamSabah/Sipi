@@ -116,10 +116,14 @@ namespace Sipi {
 
     std::ostream& operator<<(std::ostream& out, const SipiConf &config)
     {
-        out << "userid_str: " << config.userid_str;
-        out << "prefix_as_path: " << config.prefix_as_path;
-        out << "subdir_levels: " << config.subdir_levels;
-        out << "subdir_excludes: " << SipiConf::vtos(config.subdir_excludes);
+        out << "---------------------------------------------------------------" << std::endl;
+        out << "Sipi Configuration:" << std::endl;
+        out << "---------------------------------------------------------------" << std::endl;
+        out << "userid_str:\t\t" << config.userid_str << std::endl;
+        out << "prefix_as_path:\t\t" << config.prefix_as_path << std::endl;
+        out << "subdir_levels:\t\t" << config.subdir_levels << std::endl;
+        out << "subdir_excludes:\t" << SipiConf::vtos(config.subdir_excludes) << std::endl;
+        out << "---------------------------------------------------------------";
 
         return out;
     }

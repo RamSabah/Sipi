@@ -209,11 +209,17 @@ option::ArgStatus SipiMultiChoice(const option::Option &option, bool msg) {
                         str == "CRITICAL" || str == "OFF") {
                         return option::ARG_OK;
                     }
-
                     break;
 
                 case SKIPMETA:
                     if (str == "none" || str == "all") return option::ARG_OK;
+                    break;
+
+                case SUBDIRLEVELS:
+                    if (str == "0" || str == "1" || str == "2" || str == "3" || str == "4" || str == "5"
+                        || str == "6") {
+                        return option::ARG_OK;
+                    }
                     break;
 
                 default:
@@ -254,15 +260,15 @@ const option::Descriptor usage[] = {{UNKNOWN,           0, "",      "",         
                                     {LOGLEVEL,          0, "l",     "loglevel",         SipiMultiChoice,       "  --loglevel Value, -l Value  \tLogging level Value can be: TRACE,DEBUG,INFO,WARN,ERROR,CRITICAL,OFF\n"},
                                     {QUERY,             0, "x",     "query",            option::Arg::None,     "  --query -x \tDump all information about the given file"},
                                     {PREFIXASPATH,      0, "",      "prefixaspath",     option::Arg::None,     "  --prefixaspath \tUse the IIIF prefix to build the path to the image files\n"},
-                                    {SUBDIRLEVELS,      0, "",      "subdirlevels",     option::Arg::NonEmpty, "  --subdirlevels Value \tThe number of subdirectory levels sipi is using to organize files. The maximum is 6.\n"},
+                                    {SUBDIRLEVELS,      0, "",      "subdirlevels",     SipiMultiChoice,       "  --subdirlevels Value \tThe number of subdirectory levels sipi is using to organize files. Value can be from 0 to 6.\n"},
                                     {SUBDIREXCLUDES,    0, "",      "subdirexcludes",   option::Arg::NonEmpty, "  --subdirexcludes Dir \tDirectory to exclude from generating the subdirectory structure\n"},
                                     {PRINTCONFIG,       0, "",      "printconfig",      option::Arg::None,     "  --printconfig \tPrints configuration to console output on server startup\n"},
                                     {HELP,              0, "",      "help",             option::Arg::None,     "  --help  \tPrint usage and exit.\n"},
                                     {UNKNOWN,           0, "",      "",                 option::Arg::None,     "\nExamples:\n"
-                                                                                                                    "USAGE (server): sipi --config filename or sipi --c filename where filename is a properly formatted configuration file in Lua\n"
-                                                                                                                    "USAGE (server): sipi [options]\n"
-                                                                                                                    "USAGE (image converter): sipi [options] -f fileIn fileout \n"
-                                                                                                                    "USAGE (image diff): sipi --Compare file1 --Compare file2 oor sipi --C file1 -C file2 \n\n"},
+                                                                                                                        "USAGE (server): sipi --config filename or sipi --c filename where filename is a properly formatted configuration file in Lua\n"
+                                                                                                                        "USAGE (server): sipi [options]\n"
+                                                                                                                        "USAGE (image converter): sipi [options] -f fileIn fileout \n"
+                                                                                                                        "USAGE (image diff): sipi --Compare file1 --Compare file2 oor sipi --C file1 -C file2 \n\n"},
                                     {0,                 0, nullptr, nullptr,            0,                     nullptr}};
 
 //small function to check if file exist
@@ -416,9 +422,8 @@ int main(int argc, char *argv[]) {
             // transform the lua configuration into a SipiConf object and apply command options
             Sipi::SipiConf sipiConf(luacfg, options);
 
-            // print config if requested by commandline flag
+            // print config if requested by commandline flag.
             if (options[PRINTCONFIG]) {
-                std::cout << "gaga" << std::endl;
                 std::cout << sipiConf << std::endl;
             }
 
