@@ -36,26 +36,26 @@ import re
 import logging
 
 
-@pytest.fixture(scope="session")
-def manager(sipi = True, nginx = True):
-    """Returns a SipiTestManager. Automatically starts Sipi and nginx, if requested, before tests are run,
-    and stops them afterwards, if they where requested."""
+@pytest.fixture(scope="class")
+def manager():
+    """Returns a SipiTestManager. Automatically starts Sipi and nginx before tests are run
+    and stops them afterwards."""
 
     stm = SipiTestManager()
-
-    if nginx:
-        manager.start_nginx()
-
-    if sipi:
-        manager.start_sipi()
+    stm.start_nginx()
+    stm.start_sipi()
 
     yield stm
 
-    if sipi:
-        manager.stop_sipi()
+    stm.stop_sipi()
+    stm.stop_nginx()
 
-    if nginx:
-        manager.stop_nginx()
+
+@pytest.fixture(scope="class")
+def simple_manager():
+    """Returns a SipiTestManager. Sipi and nginx are not started."""
+
+    yield SipiTestManager()
 
 
 class SipiTestManager:
@@ -107,8 +107,10 @@ class SipiTestManager:
         self.compare_out_re = re.compile(r"^(\d+) \(([0-9.]+)\).*$")
         self.info_command = "identify -verbose {}"
 
-    def start_sipi(self, cmd_override):
+    def start_sipi(self, flags=""):
         """Starts Sipi and waits until it is ready to receive requests."""
+
+        self.log.debug("start_sipi - flags: " + flags)
 
         def check_for_ready_output(line):
             if self.sipi_ready_output in line:
@@ -134,10 +136,11 @@ class SipiTestManager:
             pass
 
         # get sipi args
-        if cmd_override:
-            sipi_args = shlex.split(cmd_override)
-        else:
-            sipi_args = shlex.split(self.sipi_command)
+        sipi_args = shlex.split(self.sipi_command)
+
+        if flags:
+            additional_args = shlex.split(flags)
+            sipi_args.extend(additional_args)
 
         sipi_start_time = time.time()
 

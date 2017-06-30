@@ -19,66 +19,20 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with Sipi.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import requests
-
 
 # Tests subdir functionality of the Sipi server.
 class TestServer:
     component = "The Sipi server"
 
-    def test_sipi_subdirs(self, manager(sipi = False, nginx = False)):
+    def test_sipi_subdirs(self, simple_manager):
         """Test Sipi subdir functionality"""
 
-        assert manager.sipi_is_running()
+        mgr = simple_manager
 
-    def test_sipi_log_output(self, manager):
-        """add routes"""
-        assert "Added route" in manager.get_sipi_output()
+        mgr.start_sipi("--subdirlevels 0 --printconfig")
+        assert mgr.sipi_is_running()
+        mgr.log.debug(mgr.get_sipi_output())
 
-    def test_lua_functions(self, manager):
-        """call C++ functions from Lua scripts"""
-        manager.expect_status_code("/test_functions", 200)
 
-    def test_knora_session_parsing(self, manager):
-        """call Lua function that gets the Knora session id from the cookie header sent to Sipi"""
-        manager.expect_status_code("/test_knora_session_cookie", 200)
-
-    def test_file_bytes(self, manager):
-        """return an unmodified JPG file"""
-        manager.compare_server_bytes("/knora/Leaves.jpg/full/full/0/default.jpg", manager.data_dir_path("knora/Leaves.jpg"))
-
-    def test_restrict(self, manager):
-        """return a restricted image in a smaller size"""
-        image_info = manager.get_image_info("/knora/RestrictLeaves.jpg/full/full/0/default.jpg")
-        page_geometry = [line.strip().split()[-1] for line in image_info.splitlines() if line.strip().startswith("Page geometry:")][0]
-        assert page_geometry == "128x128+0+0"
-
-    def test_deny(self, manager):
-        """return 401 Unauthorized if the user does not have permission to see the image"""
-        manager.expect_status_code("/knora/DenyLeaves.jpg/full/full/0/default.jpg", 401)
-
-    def test_thumbnail(self, manager):
-        """accept a POST request to create a thumbnail with Content-Type: multipart/form-data"""
-        response_json = manager.post_file("/make_thumbnail", manager.data_dir_path("knora/Leaves.jpg"), "image/jpeg")
-        filename = response_json["filename"]
-        manager.expect_status_code("/thumbs/{}.jpg/full/full/0/default.jpg".format(filename), 200)
-
-    def test_segfault(self, manager):
-        """not crash if image is not found by kakadu"""
-        assert manager.sipi_is_running()
-        response_json = manager.post_file("/make_thumbnail", manager.data_dir_path("knora/Leaves.jpg"), "image/jpeg")
-        filename = response_json["filename"]
-        filepath = manager.data_dir_path("thumbs/" + filename + ".jpg")
-        manager.log.debug('\n')
-        manager.log.debug(manager.get_sipi_output())
-        manager.log.debug('remove: ' + filepath)
-        os.remove(filepath)
-        sipi_url = manager.make_sipi_url("/thumbs/{}.jpg/full/full/0/default.jpg".format(filename))
-        manager.log.debug("http get: " + sipi_url)
-        response = requests.get(sipi_url, headers=None, stream=True)
-        manager.log.debug('response status code: ' + str(response.status_code))
-        manager.log.debug(manager.get_sipi_output())
-        assert manager.sipi_is_running()
 
 
